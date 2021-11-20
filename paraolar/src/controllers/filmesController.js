@@ -1,11 +1,40 @@
-const filmesJson = require("../models/filmes.json")
+const MovieSchema = require("../models/moviesSchemas")
+const mongoose = require("mongoose")
 
-const getAll = (req, res) => {
-    res.status(200).json(
-        [{
-            filmesJson
-        }]
-    )
+const getAll = async (req, res) => {
+    try {
+        const movie = await MovieSchema.find()
+        res.status(200).json(movie)
+    } catch (e) {
+        res.status(500).json({ mensagem: e.message })
+    }
+}
+
+const creatMovie = async (req, res) => {
+    try {
+        let newMovie = new MovieSchema({
+            Title: req.body.Title,
+            Year: req.body.Year,
+            Rated: req.body.Rated,
+            Released: req.body.Released,
+            Runtime: req.body.Runtime,
+            Genre: req.body.Genre,
+            Director: req.body.Director,
+            Writer: req.body.Writer,
+            Actors: req.body.Actors,
+            Plot: req.body.Plot,
+            Language: req.body.Language,
+            Country: req.body.Country,
+            Awards: req.body.Awards,
+            _id: new mongoose.Types.ObjectId(),
+        })
+        console.log(newMovie);
+        newMovie = await newMovie.save()
+        res.status(201).send({ "Mensagem": "Filme salvo com sucesso.", newMovie })
+
+    } catch (e) {
+        res.status(500).json({ mensagem: e.message })
+    }
 }
 
 const getById = (req, res) => {
@@ -24,46 +53,6 @@ const getByGenre = (req, res) => {
     let generoReq = req.query.genre
     let filmeEncontrado = filmesJson.filter(filme => filme.Genre.includes(generoReq))
     res.status(200).send(filmeEncontrado)
-}
-
-const postMovie = (req, res) => {
-    let tituloReq = req.body.Title
-    let yearReq = req.body.Year
-    let ratedReq = req.body.Rated
-    let releasedReq = req.body.Released
-    let runtimeReq = req.body.Runtime
-    let genreReq = req.body.Genre
-    let directorReq = req.body.Director
-    let writerReq = req.body.Writer
-    let actorsReq = req.body.Actors
-    let plotReq = req.body.Plot
-    let languageReq = req.body.Language
-    let countryReq = req.body.Country
-    let awardsReq = req.body.Awards
-
-    let novoFilme = {
-        id: (filmesJson.length) + 1,
-        title: tituloReq,
-        year: yearReq,
-        rated: ratedReq,
-        released: releasedReq,
-        runtime: runtimeReq,
-        genre: genreReq,
-        director: directorReq,
-        writer: writerReq,
-        actors: actorsReq,
-        plot: plotReq,
-        language: languageReq,
-        country: countryReq,
-        awards: awardsReq
-    }
-    filmesJson.push(novoFilme)
-
-    res.status(201).json(
-        [{
-            "mensagem": "filme cadastrado com sucesso",
-            novoFilme
-        }])
 }
 
 const putByIdFilme = (req, res) => {
@@ -132,7 +121,7 @@ module.exports = {
     getById,
     getByTitle,
     getByGenre,
-    postMovie,
+    creatMovie,
     putByIdFilme,
     patchTitleFilme,
     deletaFilme,
