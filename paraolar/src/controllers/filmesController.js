@@ -38,96 +38,47 @@ const creatMovie = async (req, res) => {
 }
 
 const getById = async (req, res) => {
-    try{
+    try {
         const movieFound = await MovieSchema.findById(req.query.id)
         res.status(200).json(movieFound)
-    } catch (e){
+    } catch (e) {
         res.status(500).json({ message: e.message })
     }
 }
 
-
-const putByIdFilme = (req, res) => {
-    const idReq = req.params.id
-    let filmeReq = req.body
-    let indexEncontrado = filmesJson.findIndex(filme => filme.id == idReq)
-    filmesJson.splice(indexEncontrado, 1, filmeReq)
-    res.status(200).json(
-        [
-            {
-                "mensagem": "filme atualizado com sucesso",
-                filmeReq
-            }
-        ]
-    )
+const patchUpFilme = async (req, res) => {
+    try {
+        let idMovie = req.query.id
+        let upMovie = req.body.Title
+        const findAndUp = await MovieSchema.findByIdAndUpdate({ _id: idMovie }, { Title: upMovie }, { new: true })
+        res.status(200).json({
+            message: "Filme atualizado com sucesso.", "Novo filme": findAndUp
+        })
+    } catch (e) {
+        res.status(500).json({
+            mensagem: e.message
+        })
+    }
 }
 
-const deletaFilme = (req, res) => {
-    const idReq = req.params.id
-    const indexFilme = filmesJson.findIndex(filme => filme.id == idReq)
-
-    filmesJson.splice(indexFilme, 1)
-
-    res.status(200).json([
-        {
-            "message": "Filme deletado com sucesso",
-            "filme": idReq
-        }
-    ])
-}
-
-const patchTitleFilme = (req, res) => {
-    let idReq = req.query.id
-    let filmeReq = req.body
-    let indexEncontrado = filmesJson.findIndex(filme => filme.id == idReq)
-    filmesJson.splice(indexEncontrado, 1, filmeReq)
-    res.status(200).json(
-        [
-            {
-                "mensagem": "Filme atualizado com sucesso",
-                "filme": filmeReq
-            }
-        ]
-    )
-}
-
-//fiquei em dúvida de como iria construir patchUpSerie para diferenciar do putByIdSerie, pq teoriacamente em patch poderia mudar só uma ou algumas propriedades, mas o quem que escolhe qual mudar, eu ou o usuario? ou posso escolher arbitrariamente?? Outra questão, se é pra mudar tudo o put faz isso, se for pra mudar só uma propriedade o put where também faz. Como escolher entre os dois, patch ou put? :/  E como ficaria a lógica aqui no controller, pensando sobre acredito (e espero kk) que qd estudarmos sql vai ficar mais facil visualizar isso
-
-const getByTitle = (req, res) => {
-    let tituloReq = req.query.titulo
-    let filmeEncontrado = filmesJson.filter(filme => filme.Title.includes(tituloReq))
-    res.status(200).send(filmeEncontrado)
-}
-
-const getByGenre = (req, res) => {
-    let generoReq = req.query.genre
-    let filmeEncontrado = filmesJson.filter(filme => filme.Genre.includes(generoReq))
-    res.status(200).send(filmeEncontrado)
-}
-
-const patchUpFilme = (req, res) => {
-    const idReq = req.params.id
-    let filmeReq = req.body
-    let indexEncontrado = filmesJson.findIndex(filme => filme.id == idReq)
-    filmesJson.splice(indexEncontrado, 1, filmeReq)
-    res.status(200).json(
-        [
-            {
-                "mensagem": "filme atualizado com sucesso",
-                "filme": filmeReq
-            }
-        ]
-    )
+const deletaFilme = async (req, res) => {
+    try {
+        let idReq = req.query.id
+        const deleteMovie = await MovieSchema.findByIdAndDelete({ _id: idReq })
+        res.status(200).json({
+            messagem: "Filme deletado com sucesso.", deleteMovie
+        })
+    } catch (e) {
+        res.status(500).json({
+            messagem: e.message
+        })
+    }
 }
 
 module.exports = {
     getAll,
     getById,
-    getByTitle,
-    getByGenre,
     creatMovie,
-    putByIdFilme,
-    patchTitleFilme,
     deletaFilme,
     patchUpFilme
 }
